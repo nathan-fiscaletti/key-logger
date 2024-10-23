@@ -1,14 +1,15 @@
 package key
 
 import (
-	"github.com/nathan-fiscaletti/key-logger/pkg/platform"
+	"runtime"
+
 	"github.com/samber/lo"
 )
 
 type Key struct {
 	Code     uint32
 	Name     string
-	Platform platform.Platform
+	Platform string
 }
 
 func (k Key) Equals(other Key) bool {
@@ -152,5 +153,5 @@ func FindKeyCode(val uint32) Key {
 		}
 	}
 
-	return Key{val, "", platform.GetPlatform()}
+	return Key{val, "", runtime.GOOS}
 }
