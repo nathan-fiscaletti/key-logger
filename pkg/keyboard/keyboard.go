@@ -9,11 +9,11 @@ import (
 	"github.com/samber/lo"
 )
 
-type KeyboardEventType int
+type KeyboardEventType string
 
 const (
-	KeyboardEventTypeUp KeyboardEventType = iota
-	KeyboardEventTypeDown
+	KeyboardEventTypeUp   KeyboardEventType = "up"
+	KeyboardEventTypeDown KeyboardEventType = "down"
 )
 
 type KeyboardEvent struct {
