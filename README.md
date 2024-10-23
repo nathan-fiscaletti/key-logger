@@ -45,6 +45,7 @@ func main() {
 			go func() {
 				fmt.Printf("Key: %s, Event: %s\n", event.Key.Name, event.EventType)
 
+                // If the escape key is pressed, cancel the context
 				if event.Key.Equals(key.Escape) {
 					cancel()
 				}
@@ -58,6 +59,8 @@ func main() {
 
 The key listener will only include the key released events, but each event will also include a list
 of modifier keys that were pressed at the time of the event.
+
+You can use `key.IsModifierKey` to check if a key is a modifier key.
 
 ```go
 package main
@@ -93,8 +96,15 @@ func main() {
 				fmt.Printf(
 					"Key: %v, Modifiers: %v\n",
 					event.Key.Name,
-					lo.Map(event.Modifiers, func(k key.Key, _ int) string { return k.Name }),
+					lo.Map(
+						lo.Filter(event.Modifiers, func(k key.Key, _ int) bool {
+							return key.IsModifierKey(k)
+						}),
+						func(k key.Key, _ int) string { return k.Name },
+					),
 				)
+
+				// If the escape key is pressed, cancel the context
 				if event.Key.Equals(key.Escape) {
 					cancel()
 				}

@@ -81,15 +81,11 @@ func (k *KeyListener) Events(ctx context.Context) (chan KeyEvent, error) {
 
 						switch e.EventType {
 						case KeyboardEventTypeDown:
-							if key.IsModifierKey(e.Key) {
-								k.currentModifiers = lo.Uniq(append(k.currentModifiers, e.Key))
-							}
+							k.currentModifiers = lo.Uniq(append(k.currentModifiers, e.Key))
 						case KeyboardEventTypeUp:
-							if key.IsModifierKey(e.Key) {
-								k.currentModifiers = lo.Filter(k.currentModifiers, func(code key.Key, _ int) bool {
-									return code != e.Key
-								})
-							}
+							k.currentModifiers = lo.Filter(k.currentModifiers, func(code key.Key, _ int) bool {
+								return code != e.Key
+							})
 
 							k.eventChan <- KeyEvent{
 								Key:       e.Key,

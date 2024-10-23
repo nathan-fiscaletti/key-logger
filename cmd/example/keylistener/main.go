@@ -31,8 +31,15 @@ func main() {
 				fmt.Printf(
 					"Key: %v, Modifiers: %v\n",
 					event.Key.Name,
-					lo.Map(event.Modifiers, func(k key.Key, _ int) string { return k.Name }),
+					lo.Map(
+						lo.Filter(event.Modifiers, func(k key.Key, _ int) bool {
+							return key.IsModifierKey(k)
+						}),
+						func(k key.Key, _ int) string { return k.Name },
+					),
 				)
+
+				// If the escape key is pressed, cancel the context
 				if event.Key.Equals(key.Escape) {
 					cancel()
 				}

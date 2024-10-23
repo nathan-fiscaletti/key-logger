@@ -29,6 +29,7 @@ func main() {
 			go func() {
 				fmt.Printf("Key: %s, Event: %s\n", event.Key.Name, event.EventType)
 
+				// If the escape key is pressed, cancel the context
 				if event.Key.Equals(key.Escape) {
 					cancel()
 				}
