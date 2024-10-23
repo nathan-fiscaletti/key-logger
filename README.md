@@ -9,6 +9,10 @@ This is a simple implementation of a cross-platform key logger in Go.
 
 ## Usage
 
+```sh
+go get github.com/nathan-fiscaletti/key-logger
+```
+
 ### Raw Keyboard Events
 
 Raw keyboard events will include both the key pressed and the key released events.
