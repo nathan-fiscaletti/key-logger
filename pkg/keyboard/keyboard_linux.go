@@ -42,9 +42,10 @@ func (k keyboardLinux) Events(ctx context.Context) (chan KeyboardEvent, error) {
 		if err != nil {
 			return nil, err
 		}
-		defer file.Close()
 
 		go func() {
+			defer file.Close()
+
 			for {
 				event := inputEvent{}
 				buffer := make([]byte, eventSize)

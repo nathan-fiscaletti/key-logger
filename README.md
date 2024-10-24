@@ -5,7 +5,7 @@ This is a simple implementation of a cross-platform key logger in Go.
 ## Supported Platforms
 
 - Windows
-- Linux (code is untested)
+- Linux
 
 ## Usage
 
