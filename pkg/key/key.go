@@ -2,6 +2,7 @@ package key
 
 import (
 	"runtime"
+	"strings"
 
 	"github.com/samber/lo"
 )
@@ -168,7 +169,8 @@ func IsModifierKey(key Key) bool {
 	return lo.Contains(lo.Map(modifierKeys, func(k Key, _ int) uint32 { return k.Code }), key.Code)
 }
 
-// FindKeyCode returns a Key based on the platform specific code.
+// FindKeyCode returns a Key based on the platform specific code. If the key is
+// not found, it returns a Key with the provided code and no name.
 func FindKeyCode(val uint32) Key {
 	for _, code := range allKeyCodes {
 		if code.Code == val {
@@ -177,4 +179,15 @@ func FindKeyCode(val uint32) Key {
 	}
 
 	return Key{val, "", runtime.GOOS}
+}
+
+// FindKey returns a Key based on the name and a bool indicating if the key was found.
+func FindKey(val string) (Key, bool) {
+	for _, code := range allKeyCodes {
+		if strings.ToLower(code.Name) == strings.ToLower(val) {
+			return code, true
+		}
+	}
+
+	return Key{}, false
 }
