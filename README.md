@@ -1,5 +1,9 @@
 # key-logger
 
+[![Sponsor Me!](https://img.shields.io/badge/%F0%9F%92%B8-Sponsor%20Me!-blue)](https://github.com/sponsors/nathan-fiscaletti)
+[![Go Report Card](https://goreportcard.com/badge/github.com/nathan-fiscaletti/key-logger?p=0)](https://goreportcard.com/report/github.com/nathan-fiscaletti/key-logger)
+[![GoDoc](https://godoc.org/github.com/nathan-fiscaletti/key-logger?status.svg)](https://godoc.org/github.com/nathan-fiscaletti/key-logger)
+
 This is a simple implementation of a cross-platform key logger in Go.
 
 ## Supported Platforms
