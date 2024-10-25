@@ -10,7 +10,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/nathan-fiscaletti/key-logger/pkg/keyboard/key"
+	"github.com/nathan-fiscaletti/key-logger/pkg/key"
 )
 
 const eventSize = 24 // Size of each event struct in bytes
@@ -27,12 +27,12 @@ func init() {
 }
 
 type keyboardLinux struct {
-	eventChan chan KeyboardEvent
+	eventChan chan Event
 }
 
-func (k keyboardLinux) Events(ctx context.Context) (chan KeyboardEvent, error) {
+func (k keyboardLinux) Events(ctx context.Context) (chan Event, error) {
 	if k.eventChan == nil {
-		k.eventChan = make(chan KeyboardEvent)
+		k.eventChan = make(chan Event)
 
 		device, err := findKeyboardDevice()
 		if err != nil {
@@ -68,7 +68,7 @@ func (k keyboardLinux) Events(ctx context.Context) (chan KeyboardEvent, error) {
 					if event.Value == 1 {
 						eventType = KeyboardEventTypeDown
 					}
-					k.eventChan <- KeyboardEvent{
+					k.eventChan <- Event{
 						Key:       key.FindKeyCode(uint32(event.Code)),
 						EventType: eventType,
 						Timestamp: time.Unix(int64(event.Time[0]), int64(event.Time[1])),
