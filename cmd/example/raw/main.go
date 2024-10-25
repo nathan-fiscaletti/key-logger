@@ -3,8 +3,8 @@ package main
 import (
 	"fmt"
 
+	"github.com/nathan-fiscaletti/key-logger/pkg/key"
 	"github.com/nathan-fiscaletti/key-logger/pkg/keyboard"
-	"github.com/nathan-fiscaletti/key-logger/pkg/keyboard/key"
 
 	"context"
 )
@@ -12,28 +12,22 @@ import (
 func main() {
 	ctx := context.Background()
 	ctx, cancel := context.WithCancel(ctx)
-	kb := keyboard.NewKeyboard()
+	kb := keyboard.New()
 
-	keyChannel, err := kb.Events(ctx)
+	err := kb.Listen(ctx, func(event keyboard.Event) {
+		fmt.Printf("Key: %s, Event: %s\n", event.Key.Name, event.EventType)
+
+		// If the escape key is pressed, cancel the context
+		if event.Key.Equals(key.Escape) {
+			cancel()
+		}
+	})
+
 	if err != nil {
-		fmt.Printf("Error getting keyboard events: %v\n", err)
+		fmt.Printf("Error listening for keyboard events: %v\n", err)
 		return
 	}
 
 	fmt.Println("Listening for keyboard events...")
-	for {
-		select {
-		case <-ctx.Done():
-			return
-		case event := <-keyChannel:
-			go func() {
-				fmt.Printf("Key: %s, Event: %s\n", event.Key.Name, event.EventType)
-
-				// If the escape key is pressed, cancel the context
-				if event.Key.Equals(key.Escape) {
-					cancel()
-				}
-			}()
-		}
-	}
+	<-ctx.Done()
 }

@@ -7,11 +7,15 @@ import (
 )
 
 type Key struct {
-	Code     uint32
-	Name     string
+	// The platform specific code for the key. (VK_* on Windows, KEY_* on Linux)
+	Code uint32
+	// The name of the key.
+	Name string
+	// The platform to which the key code belongs.
 	Platform string
 }
 
+// Equals returns true if the key codes are equal.
 func (k Key) Equals(other Key) bool {
 	return k.Code == other.Code
 }
@@ -142,10 +146,29 @@ var modifierKeys = []Key{
 	RightWin,
 }
 
+// RegisterModifierKey registers a new modifier key.
+func AddModifierKey(key Key) {
+	modifierKeys = append(modifierKeys, key)
+}
+
+// RemoveModifierKey removes a modifier key.
+func RemoveModifierKey(key Key) {
+	modifierKeys = lo.Filter(modifierKeys, func(k Key, _ int) bool {
+		return k.Code != key.Code
+	})
+}
+
+// ListModifierKeys returns a list of all modifier keys.
+func ListModifierKeys() []Key {
+	return modifierKeys
+}
+
+// IsModifierKey returns true if the key is a modifier key.
 func IsModifierKey(key Key) bool {
 	return lo.Contains(lo.Map(modifierKeys, func(k Key, _ int) uint32 { return k.Code }), key.Code)
 }
 
+// FindKeyCode returns a Key based on the platform specific code.
 func FindKeyCode(val uint32) Key {
 	for _, code := range allKeyCodes {
 		if code.Code == val {

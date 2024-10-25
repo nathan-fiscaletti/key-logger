@@ -6,7 +6,7 @@ import (
 	"time"
 	"unsafe"
 
-	"github.com/nathan-fiscaletti/key-logger/pkg/keyboard/key"
+	"github.com/nathan-fiscaletti/key-logger/pkg/key"
 )
 
 var (
@@ -59,23 +59,23 @@ func init() {
 }
 
 type keyboardWindows struct {
-	eventChan chan KeyboardEvent
+	eventChan chan Event
 }
 
-func (k keyboardWindows) Events(ctx context.Context) (chan KeyboardEvent, error) {
+func (k keyboardWindows) Events(ctx context.Context) (chan Event, error) {
 	if k.eventChan == nil {
-		k.eventChan = make(chan KeyboardEvent)
+		k.eventChan = make(chan Event)
 		go func() {
 			hookCallback := syscall.NewCallback(func(nCode int, wParam, lParam uintptr) uintptr {
 				if nCode >= 0 {
 					kbStruct := (*kbDLLHOOKSTRUCT)(unsafe.Pointer(lParam))
 
-					var eventType KeyboardEventType = KeyboardEventTypeDown
+					var eventType EventType = KeyboardEventTypeDown
 					if kbStruct.Flags == flagKeyUp {
 						eventType = KeyboardEventTypeUp
 					}
 
-					event := KeyboardEvent{
+					event := Event{
 						Key:       key.FindKeyCode(kbStruct.VKCode),
 						EventType: eventType,
 						Timestamp: parseTime(kbStruct.Time),
