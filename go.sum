@@ -1,3 +1,5 @@
+github.com/nathan-fiscaletti/dev-input v1.0.0 h1:FYkL6NMRSmXWyqSoMS0G9WLSYIUy4+so4uv5lx/iN48=
+github.com/nathan-fiscaletti/dev-input v1.0.0/go.mod h1:UTmQgwEnWYWfg3VGWLP0toMXX+gpVYbd2Fai8qDu8Vs=
 github.com/samber/lo v1.47.0 h1:z7RynLwP5nbyRscyvcD043DWYoOcYRv3mV8lBeqOCLc=
 github.com/samber/lo v1.47.0/go.mod h1:RmDH9Ct32Qy3gduHQuKJ3gW1fMHAnE/fAzQuf6He5cU=
 golang.org/x/text v0.16.0 h1:a94ExnEXNtEwYLGJSIUxnWoxoRz/ZcCsV63ROupILh4=

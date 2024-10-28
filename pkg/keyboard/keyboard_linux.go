@@ -1,27 +1,19 @@
 package keyboard
 
 import (
-	"bytes"
 	"context"
-	"encoding/binary"
 	"fmt"
-	"io"
-	"os"
-	"strings"
 	"time"
+
+	input "github.com/nathan-fiscaletti/dev-input"
 
 	"github.com/nathan-fiscaletti/key-logger/pkg/key"
 )
 
-const eventSize = 24 // Size of each event struct in bytes
+// On linux there is a special event type for repeat events.
+const KeyboardEventTypeRepeat EventType = "repeat"
 
-type inputEvent struct {
-	Time  [2]uint64 // Timestamp (seconds and microseconds)
-	Type  uint16    // Event type
-	Code  uint16    // Event code
-	Value int32     // Event value (1 for key down, 0 for key up)
-}
-
+// const eventSize = 24 // Size of each event struct in bytes
 func init() {
 	keyboard = keyboardLinux{}
 }
@@ -34,77 +26,41 @@ func (k keyboardLinux) Events(ctx context.Context) (chan Event, error) {
 	if k.eventChan == nil {
 		k.eventChan = make(chan Event)
 
-		device, err := findKeyboardDevice()
-		if err != nil {
-			return nil, err
-		}
-		file, err := os.Open(device)
+		keyboards, err := input.ListKeyboards()
 		if err != nil {
 			return nil, err
 		}
 
-		go func() {
-			defer file.Close()
+		if len(keyboards) < 1 {
+			return nil, fmt.Errorf("no keyboards found")
+		}
 
-			for {
-				event := inputEvent{}
-				buffer := make([]byte, eventSize)
-				_, err := file.Read(buffer)
-				if err != nil {
-					close(k.eventChan)
-					k.eventChan = nil
-					return
-				}
-
-				err = binary.Read(bytes.NewBuffer(buffer), binary.LittleEndian, &event)
-				if err != nil {
-					close(k.eventChan)
-					k.eventChan = nil
-					return
-				}
-
-				if event.Type == 1 {
-					eventType := KeyboardEventTypeUp
-					if event.Value == 1 {
-						eventType = KeyboardEventTypeDown
+		for _, keyboard := range keyboards {
+			go func() {
+				err := keyboard.Listen(ctx, func(e input.Event) {
+					if e.Type == input.EV_TYPE_KEY {
+						var eventType EventType
+						switch e.Value {
+						case 1:
+							eventType = KeyboardEventTypeDown
+						case 2:
+							eventType = KeyboardEventTypeRepeat
+						default:
+							eventType = KeyboardEventTypeUp
+						}
+						k.eventChan <- Event{
+							Key:       key.FindKeyCode(uint32(e.Code)),
+							EventType: eventType,
+							Timestamp: time.Unix(int64(e.Time[0]), int64(e.Time[1])),
+						}
 					}
-					k.eventChan <- Event{
-						Key:       key.FindKeyCode(uint32(event.Code)),
-						EventType: eventType,
-						Timestamp: time.Unix(int64(event.Time[0]), int64(event.Time[1])),
-					}
+				})
+				if err != nil {
+					fmt.Printf("Error listening for keyboard events: %v\n", err)
 				}
-			}
-		}()
+			}()
+		}
 	}
 
 	return k.eventChan, nil
-}
-
-func findKeyboardDevice() (string, error) {
-	for i := 0; i < 255; i++ {
-		f, err := os.Open(fmt.Sprintf("/sys/class/input/event%d/device/name", i))
-		if err != nil {
-			return "", err
-		}
-
-		var data []byte
-		data, err = io.ReadAll(f)
-		if err != nil {
-			return "", err
-		}
-		content := string(data)
-
-		if strings.Contains(strings.ToLower(content), "mouse") {
-			continue
-		}
-
-		for _, identifier := range []string{"keyboard", "mx keys"} {
-			if strings.Contains(strings.ToLower(content), identifier) {
-				return fmt.Sprintf("/dev/input/event%d", i), nil
-			}
-		}
-	}
-
-	return "", nil
 }

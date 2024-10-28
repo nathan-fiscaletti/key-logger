@@ -7,8 +7,15 @@ This is a simple implementation of a cross-platform key logger in Go.
 
 ## Supported Platforms
 
-- Windows
-- Linux
+- **Windows**
+
+  Implemented through the `SetWindowsHookExW(WH_KEYBOARD_LL)` API.
+
+- **Linux**
+
+  Implemented through the `/dev/input/event/` filesystem API.
+
+  (See [dev-input](https://github.com/nathan-fiscaletti/dev-input) for more information.)
 
 ## Usage
 
