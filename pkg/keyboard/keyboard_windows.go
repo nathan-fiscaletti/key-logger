@@ -67,25 +67,31 @@ func (k keyboardWindows) Events(ctx context.Context) (chan Event, error) {
 		k.eventChan = make(chan Event)
 		go func() {
 			hookCallback := syscall.NewCallback(func(nCode int, wParam, lParam uintptr) uintptr {
-				if nCode >= 0 {
-					kbStruct := (*kbDLLHOOKSTRUCT)(unsafe.Pointer(lParam))
+				select {
+				case <-ctx.Done():
+					return 0
 
-					var eventType EventType = KeyboardEventTypeDown
-					if kbStruct.Flags == flagKeyUp {
-						eventType = KeyboardEventTypeUp
+				default:
+					if nCode >= 0 {
+						kbStruct := (*kbDLLHOOKSTRUCT)(unsafe.Pointer(lParam))
+
+						var eventType EventType = KeyboardEventTypeDown
+						if kbStruct.Flags == flagKeyUp {
+							eventType = KeyboardEventTypeUp
+						}
+
+						event := Event{
+							Key:       key.FindKeyCode(kbStruct.VKCode),
+							EventType: eventType,
+							Timestamp: parseTime(kbStruct.Time),
+						}
+
+						k.eventChan <- event
 					}
 
-					event := Event{
-						Key:       key.FindKeyCode(kbStruct.VKCode),
-						EventType: eventType,
-						Timestamp: parseTime(kbStruct.Time),
-					}
-
-					k.eventChan <- event
+					r1, _, _ := procCallNextHookEx.Call(0, uintptr(nCode), wParam, lParam)
+					return r1
 				}
-
-				r1, _, _ := procCallNextHookEx.Call(0, uintptr(nCode), wParam, lParam)
-				return r1
 			})
 
 			h, _, _ := procSetWindowsHookEx.Call(uintptr(keyboardHook), hookCallback, 0, 0)
