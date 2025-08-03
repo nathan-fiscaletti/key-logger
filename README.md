@@ -17,6 +17,9 @@ This is a simple implementation of a cross-platform key logger in Go.
 
   (See [dev-input](https://github.com/nathan-fiscaletti/dev-input) for more information.)
 
+> [!IMPORTANT]\
+> On Linux, root is required to read keyboard events.
+
 ## Usage
 
 ```sh

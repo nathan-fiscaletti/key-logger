@@ -15,14 +15,14 @@ const KeyboardEventTypeRepeat EventType = "repeat"
 
 // const eventSize = 24 // Size of each event struct in bytes
 func init() {
-	keyboard = keyboardLinux{}
+	keyboard = &keyboardLinux{}
 }
 
 type keyboardLinux struct {
 	eventChan chan Event
 }
 
-func (k keyboardLinux) Events(ctx context.Context) (chan Event, error) {
+func (k *keyboardLinux) Events(ctx context.Context) (chan Event, error) {
 	if k.eventChan == nil {
 		k.eventChan = make(chan Event)
 
@@ -36,8 +36,8 @@ func (k keyboardLinux) Events(ctx context.Context) (chan Event, error) {
 		}
 
 		for _, keyboard := range keyboards {
-			go func() {
-				err := keyboard.Listen(ctx, func(e input.Event) {
+			go func(kb *input.Device) {
+				err := kb.Listen(ctx, func(e input.Event) {
 					if e.Type == input.EV_TYPE_KEY {
 						var eventType EventType
 						switch e.Value {
@@ -58,7 +58,7 @@ func (k keyboardLinux) Events(ctx context.Context) (chan Event, error) {
 				if err != nil {
 					fmt.Printf("Error listening for keyboard events: %v\n", err)
 				}
-			}()
+			}(keyboard)
 		}
 	}
 
