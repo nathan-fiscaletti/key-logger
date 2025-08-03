@@ -184,7 +184,7 @@ func FindKeyCode(val uint32) Key {
 // FindKey returns a Key based on the name and a bool indicating if the key was found.
 func FindKey(val string) (Key, bool) {
 	for _, code := range allKeyCodes {
-		if strings.ToLower(code.Name) == strings.ToLower(val) {
+		if strings.EqualFold(code.Name, val) {
 			return code, true
 		}
 	}
