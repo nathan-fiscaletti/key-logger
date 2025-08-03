@@ -1,0 +1,21 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Run Key Listener",
+      "type": "go",
+      "request": "launch",
+      "mode": "auto",
+      "program": "${workspaceFolder}/cmd/example/keylistener",
+      "cwd": "${workspaceFolder}/cmd/example/keylistener",
+    },
+    {
+      "name": "Run Raw",
+      "type": "go",
+      "request": "launch",
+      "mode": "auto",
+      "program": "${workspaceFolder}/cmd/example/raw",
+      "cwd": "${workspaceFolder}/cmd/example/raw",
+    },
+  ]
+}

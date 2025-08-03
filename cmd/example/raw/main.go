@@ -10,10 +10,15 @@ import (
 )
 
 func main() {
+	// Initialize a context.
 	ctx := context.Background()
 	ctx, cancel := context.WithCancel(ctx)
+
+	// Retrieve the main keyboard hook.
 	kb := keyboard.New()
 
+	// Since we are using the main keyboard hook, we will receive both up and
+	// down events for every key on the keyboard.
 	err := kb.Listen(ctx, func(event keyboard.Event) {
 		fmt.Printf("Key: %s, Event: %s\n", event.Key.Name, event.EventType)
 

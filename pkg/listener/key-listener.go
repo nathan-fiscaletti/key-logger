@@ -41,39 +41,37 @@ func (k *keyListenerInternal) Events(ctx context.Context) (chan KeyEvent, error)
 		}
 
 		go func() {
-			// read events from the keyboard
 			for {
 				select {
 				case <-ctx.Done():
 					close(k.eventChan)
 					k.eventChan = nil
 					return
-				default:
-					event, ok := <-keyboardEventChan
+				case event, ok := <-keyboardEventChan:
 					if !ok {
 						close(k.eventChan)
 						k.eventChan = nil
 						return
 					}
 
-					go func(e keyboard.Event) {
-						k.currentModifiersLock.Lock()
-						defer k.currentModifiersLock.Unlock()
-
-						switch e.EventType {
-						case keyboard.KeyboardEventTypeDown:
-							k.currentModifiers = lo.Uniq(append(k.currentModifiers, e.Key))
-						case keyboard.KeyboardEventTypeUp:
-							k.currentModifiers = lo.Filter(k.currentModifiers, func(code key.Key, _ int) bool {
-								return code != e.Key
-							})
-
-							k.eventChan <- KeyEvent{
-								Key:       e.Key,
-								Modifiers: k.currentModifiers,
-							}
+					k.currentModifiersLock.Lock()
+					switch event.EventType {
+					case keyboard.KeyboardEventTypeDown:
+						k.currentModifiers = lo.Uniq(append(k.currentModifiers, event.Key))
+					case keyboard.KeyboardEventTypeUp:
+						k.currentModifiers = lo.Filter(
+							k.currentModifiers,
+							func(code key.Key, _ int) bool {
+								return code != event.Key
+							},
+						)
+						// Make a copy of the modifiers slice
+						k.eventChan <- KeyEvent{
+							Key:       event.Key,
+							Modifiers: lo.Slice(k.currentModifiers, 0, len(k.currentModifiers)),
 						}
-					}(event)
+					}
+					k.currentModifiersLock.Unlock()
 				}
 			}
 		}()

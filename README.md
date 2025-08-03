@@ -27,7 +27,11 @@ go get github.com/nathan-fiscaletti/key-logger
 
 Raw keyboard events will include both the key pressed and the key released events.
 
-Run this example with: `go run ./cmd/example/raw`
+[View Documentation: ./cmd/example/raw/main.go](./cmd/example/raw/main.go)
+
+> [!TIP]\
+> Run this example with: `go run ./cmd/example/raw` or use the built in [VSCode Run Configuration](./.vscode/launch.json).
+
 ```go
 package main
 
@@ -48,7 +52,6 @@ func main() {
 	err := kb.Listen(ctx, func(event keyboard.Event) {
 		fmt.Printf("Key: %s, Event: %s\n", event.Key.Name, event.EventType)
 
-		// If the escape key is pressed, cancel the context
 		if event.Key.Equals(key.Escape) {
 			cancel()
 		}
@@ -69,14 +72,19 @@ func main() {
 The key listener will only include the key released events, but each event will also include a list
 of modifier keys that were pressed at the time of the event.
 
+[View Documentation: ./cmd/example/keylistener/main.go](./cmd/example/keylistener/main.go)
+
 You can use `key.IsModifierKey` to check if a key is a modifier key.
 
-Run this example with: `go run ./cmd/example/keylistener`
+> [!TIP]\
+> Run this example with: `go run ./cmd/example/keylistener` or use the built in [VSCode Run Configuration](./.vscode/launch.json).
+
 ```go
 package main
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/nathan-fiscaletti/key-logger/pkg/key"
 	"github.com/nathan-fiscaletti/key-logger/pkg/keyboard"
@@ -105,14 +113,13 @@ func main() {
 			),
 		)
 
-		// If the escape key is pressed, cancel the context
 		if event.Key.Equals(key.Escape) {
 			cancel()
 		}
 	})
 
 	if err != nil {
-		fmt.Printf("Error listening for keyboard events: %v\n", err)
+		log.Fatal("Error listening for keyboard events: %v\n", err)
 		return
 	}
 
